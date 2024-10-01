@@ -38,19 +38,23 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     // Define a árvore como uma estrutura vazia
     struct node* root = NULL;
 
-    char letter;
-    while(letter!='I'){
-        letter=fgetc(pontarq);
-        if(letter=='R'){
-            break;
+    int cont=0;
+    char line[256];
+    while (fgets(line, sizeof(line), pontarq)) {
+        char comando;
+        int num;
+
+        // Lê o comando e o número da linha
+        if (sscanf(line, "%c %d", &comando, &num) == 2) {
+            if (comando == 'I') {
+                root = inserir(root, num); // Atualiza o root com o retorno da inserção
+                cont++;
+            } else if (comando == 'R') {
+                break; // Pode adicionar lógica para remoção se necessário
+            }
         }
-        fgetc(pontarq);
-        if(letter=='I'){
-            int num=fgetc(pontarq);
-            inserir(root,num);
-        }
-        fgetc(pontarq);
     }
+    printf("\nContador: %d\n", cont);
     
 
     
