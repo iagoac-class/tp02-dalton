@@ -31,6 +31,105 @@ struct node* inserir(struct node* node, int valor) {
     return node;
 }
 
+struct node *busca(struct node *raiz, int k){
+    if(raiz==NULL || (*raiz).valor==k){
+        return raiz;
+    }
+    if((*raiz).valor > k){
+        return busca((*raiz).esquerda,k);
+    }
+    else{
+        return busca((*raiz).direita,k);
+    }
+}
+struct node *buscaPai(struct node *raiz, struct node *n, struct node *pai){
+    if(raiz==NULL || (*raiz).valor==(*n).valor){
+        return pai;
+    }
+    pai=raiz;
+    if((*raiz).valor > (*n).valor){
+        return buscaPai((*raiz).esquerda,n,pai);
+    }
+    else{
+        return buscaPai((*raiz).direita,n,pai);
+    }
+}
+
+void remover(struct node* node, int valor){
+    struct node* ant;
+    if(node==NULL){
+        return;
+    }
+    struct node* root=buscar(node,valor,&ant);
+    if((*root).valor==valor){
+        if((*root).direita==NULL && (*root).esquerda==NULL){
+            (*ant).direita=NULL;
+        }
+        if((*root).direita!=NULL && (*root).esquerda!=NULL){
+            (*ant).direita=(*root).direita;
+        }
+        if((*root).direita!=NULL){
+            (*ant).direita=(*root).direita;
+        }
+        else{
+            (*ant).esquerda=(*root).esquerda;
+        }
+        
+    }
+}
+
+struct node *min(struct node *raiz){
+    while((*raiz).esquerda!=NULL){
+        raiz=(*raiz).esquerda;
+    }
+    return raiz;
+}
+struct node *removeRaiz(struct node *n){
+    if (n == NULL) {
+        return NULL;
+    }
+    
+    if((*n).esquerda==NULL && (*n).direita==NULL){
+        n=NULL;
+        return NULL;
+    }
+
+    if((*n).esquerda==NULL){
+        return (*n).direita;
+    }
+    if((*n).direita==NULL){
+        return (*n).esquerda;
+    }
+
+    struct node *sucessor = min(n->direita);
+    n->valor = sucessor->valor;
+    n->direita = removeRaiz(sucessor);
+
+    return n;
+
+}
+struct node *removeNo(struct node *raiz, int valor){
+    struct node *n=busca(raiz,valor);
+    if(n){
+        struct node *gg=NULL;
+        struct node *pai=buscaPai(raiz,n,gg);
+        if(pai){
+            if((*pai).direita==n){
+                (*pai).direita=removeRaiz(n);
+            }
+            else{
+                (*pai).esquerda=removeRaiz(n);
+            }
+        }
+        else{
+            raiz=removeRaiz(n);
+        }
+    }
+    return raiz;
+}
+
+struct node* construir();
+
 double arvore_binaria(int instancia_num, FILE *pontarq) {
     double tempo = 0;
     clock_t begin = clock();
@@ -39,6 +138,7 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     struct node* root = NULL;
 
     int cont=0;
+    int cont2=0;
     char line[256];
     while (fgets(line, sizeof(line), pontarq)) {
         char comando;
@@ -49,12 +149,14 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
             if (comando == 'I') {
                 root = inserir(root, num); // Atualiza o root com o retorno da inserção
                 cont++;
-            } else if (comando == 'R') {
-                break; // Pode adicionar lógica para remoção se necessário
+            }
+            if (comando == 'R') {
+                removeNo(root,num);
+                cont2++;
             }
         }
     }
-    printf("\nContador: %d\n", cont);
+    printf("\nContador1: %d Contador2: %d\n", cont, cont2);
     
 
     
