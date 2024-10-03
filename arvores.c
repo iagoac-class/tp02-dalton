@@ -42,25 +42,14 @@ struct node *busca(struct node *raiz, int k){
         return busca((*raiz).direita,k);
     }
 }
-struct node *buscaPai(struct node *raiz, struct node *n, struct node *pai){
-    if(raiz==NULL || (*raiz).valor==(*n).valor){
-        return pai;
-    }
-    pai=raiz;
-    if((*raiz).valor > (*n).valor){
-        return buscaPai((*raiz).esquerda,n,pai);
-    }
-    else{
-        return buscaPai((*raiz).direita,n,pai);
-    }
-}
 
+/*
 void remover(struct node* node, int valor){
     struct node* ant;
     if(node==NULL){
         return;
     }
-    struct node* root=buscar(node,valor,&ant);
+    struct node* root=busca(node,valor);
     if((*root).valor==valor){
         if((*root).direita==NULL && (*root).esquerda==NULL){
             (*ant).direita=NULL;
@@ -77,6 +66,7 @@ void remover(struct node* node, int valor){
         
     }
 }
+*/
 
 struct node *min(struct node *raiz){
     while((*raiz).esquerda!=NULL){
@@ -108,6 +98,18 @@ struct node *removeRaiz(struct node *n){
     return n;
 
 }
+struct node* buscaPai(struct node *raiz, struct node *n, struct node *pai){
+    if(raiz==NULL || (*raiz).valor==(*n).valor){
+        return pai;
+    }
+    pai=raiz;
+    if((*raiz).valor > (*n).valor){
+        return buscaPai((*raiz).esquerda,n,pai);
+    }
+    else{
+        return buscaPai((*raiz).direita,n,pai);
+    }
+}
 struct node *removeNo(struct node *raiz, int valor){
     struct node *n=busca(raiz,valor);
     if(n){
@@ -128,7 +130,9 @@ struct node *removeNo(struct node *raiz, int valor){
     return raiz;
 }
 
-struct node* construir();
+void construir(int V[], int p, int valor){
+    V[p]=valor;
+}
 
 double arvore_binaria(int instancia_num, FILE *pontarq) {
     double tempo = 0;
@@ -167,11 +171,47 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     return (tempo);
 }
 
-double arvore_balanceada(int instancia_num) {
+struct node* inserirb(int V[],int E, int D){
+    struct node* no=malloc(sizeof(struct node));
+    if(E>D){
+        return NULL;
+    }
+    int mid=(E+D)/2;
+    (*no).valor=V[mid];
+    (*no).esquerda=inserirb(V,E,mid-1);
+    (*no).direita=inserirb(V,mid+1,D);
+    return no;
+}
+
+double arvore_balanceada(int instancia_num, FILE *pontarq) {
     double tempo = 0;
     clock_t begin = clock();
 
-    
+    struct node* root2 = NULL;
+
+    int cont=0;
+    int cont2=0;
+    int V[20000];
+    char line[256];
+    while (fgets(line, sizeof(line), pontarq)) {
+        char comando;
+        int num;
+
+        // Lê o comando e o número da linha
+        if (sscanf(line, "%c %d", &comando, &num) == 2) {
+            if (comando == 'I') {
+                construir(V,cont,num); 
+                root2 = inserirb(V,0,sizeof(V));// Atualiza o root com o retorno da inserção
+                cont++;
+            }
+            if (comando == 'R') {
+                removeNo(root2,num);
+                cont2++;
+            }
+        }
+    }
+    printf("\nContador1: %d Contador2: %d\n", cont, cont2);
+
     clock_t end = clock();
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
     // dividindo a diferença por CLOCKS_PER_SEC para converter em segundos
@@ -198,14 +238,21 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
     
+
     
     double tempo_n_balanceada = arvore_binaria(instancia_num,pontarq);
-    //double tempo_balanceada = arvore_balanceada(instancia_num);
+
+    pontarq = fopen(argv[1], "r");
+    if (pontarq == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        exit(1);
+    }
+    double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
 
     
 
     
-    printf("%f\n", tempo_n_balanceada);
+    printf("%f %f\n", tempo_n_balanceada, tempo_balanceada);
 
     return (1);
 }
