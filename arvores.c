@@ -171,15 +171,16 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     return (tempo);
 }
 
-struct node* inserirb(int V[],int E, int D){
+struct node* inserirb(struct node* root2,int V[],int E, int D){
     struct node* no=malloc(sizeof(struct node));
     if(E>D){
         return NULL;
     }
     int mid=(E+D)/2;
     (*no).valor=V[mid];
-    (*no).esquerda=inserirb(V,E,mid-1);
-    (*no).direita=inserirb(V,mid+1,D);
+    (*no).esquerda=inserirb(root2,V,E,mid-1);
+    (*no).direita=inserirb(root2,V,mid+1,D);
+    root2=no;
     return no;
 }
 
@@ -193,6 +194,7 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
     int cont2=0;
     int V[20000];
     char line[256];
+
     while (fgets(line, sizeof(line), pontarq)) {
         char comando;
         int num;
@@ -200,10 +202,19 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
         // Lê o comando e o número da linha
         if (sscanf(line, "%c %d", &comando, &num) == 2) {
             if (comando == 'I') {
-                construir(V,cont,num); 
-                root2 = inserirb(V,0,sizeof(V));// Atualiza o root com o retorno da inserção
+                construir(V,cont,num);
                 cont++;
             }
+        }
+    }
+    
+    inserirb(root2,V,0,sizeof(V));// Atualiza o root com o retorno da inserção
+    while (fgets(line, sizeof(line), pontarq)) {
+        char comando;
+        int num;
+
+        // Lê o comando e o número da linha
+        if (sscanf(line, "%c %d", &comando, &num) == 2) {
             if (comando == 'R') {
                 removeNo(root2,num);
                 cont2++;

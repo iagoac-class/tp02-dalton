@@ -17,7 +17,7 @@ struct node *removeRaiz(struct node *n);
 struct node *removeNo(struct node *raiz, int valor);
 
 void construir(int V[], int p, int valor);
-struct node* inserirb(int V[],int E, int D);
+struct node* inserirb(struct node* root2,int V[],int E, int D);
 
 double arvore_binaria(int instancia_num, FILE *pontarq);
 double arvore_balanceada(int instancia_num, FILE *pontarq);
