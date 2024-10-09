@@ -4,27 +4,26 @@
 #include <time.h>       
 #include "arvores.h"
 
-// Cria um novo nó na árvore
+// Cria um novo nó, retornando seu endereço
 struct node* novo_no(int item) {
-    struct node* temp = (struct node*)malloc(sizeof(struct node));
-    temp->valor = item;
-    temp->esquerda = temp->direita = NULL;
-    return temp;
+    struct node* temp = (struct node*)malloc(sizeof(struct node));//cria o nó a ser inserido
+    temp->valor = item;//nó criado recebe o valor passado
+    temp->esquerda = temp->direita = NULL;//ambos os ponteiros são iniciados como null, já que o nó inserido é folha
+    return temp;//retorna o endereço do nó criado
 }
  
-// Inserir novo nó com determinado
-// valor na árvore binária
+// Inserir novo nó com determinado valor na árvore binária
 struct node* inserir(struct node* node, int valor) {
-    // Se a árvore é vazia, então cria um novo nó
+    // Se a árvore (ou subárvore!) é vazia, então cria um novo nó
     if (node == NULL) {
-        return novo_no(valor);
+        return novo_no(valor);//cria um novo nó; caso seja um nó folha, este endereço é retornado para sua chamada e o nó pai aponta para ele
     }
  
     // Caso contrário, faz uma busca pelo local adequado de inserção
     if (valor < node->valor) {
-        node->esquerda = inserir(node->esquerda, valor);
+        node->esquerda = inserir(node->esquerda, valor);//chamada recursiva na subárvore esquerda
     } else if (valor > node->valor) {
-        node->direita = inserir(node->direita, valor);
+        node->direita = inserir(node->direita, valor);//chamada recursiva na subárvore direita
     }
     
     // Retorna o ponteiro para o nó
@@ -32,91 +31,76 @@ struct node* inserir(struct node* node, int valor) {
 }
 
 struct node *busca(struct node *raiz, int k){
-    if(raiz==NULL || (*raiz).valor==k){
+    if(raiz==NULL || (*raiz).valor==k){//caso a árvore esteja vazia ou o valor esteja na raiz
         return raiz;
     }
-    if((*raiz).valor > k){
+    if((*raiz).valor > k){//percorre a subárvore esquerda
         return busca((*raiz).esquerda,k);
     }
     else{
-        return busca((*raiz).direita,k);
+        return busca((*raiz).direita,k);//percorre a subárvore direita
     }
 }
 
-/*
-void remover(struct node* node, int valor){
-    struct node* ant;
-    if(node==NULL){
-        return;
-    }
-    struct node* root=busca(node,valor);
-    if((*root).valor==valor){
-        if((*root).direita==NULL && (*root).esquerda==NULL){
-            (*ant).direita=NULL;
-        }
-        if((*root).direita!=NULL && (*root).esquerda!=NULL){
-            (*ant).direita=(*root).direita;
-        }
-        if((*root).direita!=NULL){
-            (*ant).direita=(*root).direita;
-        }
-        else{
-            (*ant).esquerda=(*root).esquerda;
-        }
-        
-    }
-}
-*/
-
+// encontra o valor mínimo (aquele mais à esquerda) da árvore
 struct node *min(struct node *raiz){
-    while((*raiz).esquerda!=NULL){
-        raiz=(*raiz).esquerda;
+    while((*raiz).esquerda != NULL){
+        raiz = (*raiz).esquerda;
     }
     return raiz;
 }
+
+//remove a raiz da árvore ou subárvore
 struct node *removeRaiz(struct node *n){
-    if (n == NULL) {
+    if (n == NULL) {//se o nó atual for nulo, retorna nulo
         return NULL;
     }
     
-    if((*n).esquerda==NULL && (*n).direita==NULL){
-        n=NULL;
-        return NULL;
+    if((*n).esquerda == NULL && (*n).direita == NULL){//se o nó atual não tiver nenhum filho, retorna nulo
+        n = NULL;
+        return NULL;//no caso de nenhum filho, o nó é simplesmente removido (o pai aponta pra NULL, se for o caso)
     }
 
-    if((*n).esquerda==NULL){
-        return (*n).direita;
-    }
-    if((*n).direita==NULL){
-        return (*n).esquerda;
+    if((*n).esquerda == NULL){//se o nó só tiver o filho da direita, retorna ele
+        return (*n).direita;//no caso de um único filho, este é colocado no lugar da raiz
     }
 
-    struct node *sucessor = min(n->direita);
-    n->valor = sucessor->valor;
-    n->direita = removeRaiz(sucessor);
+    if((*n).direita == NULL){//se o nó só tiver o filho da esquerda, retorna ele
+        return (*n).esquerda;//no caso de um único filho, este é colocado no lugar da raiz
+    }
+
+    struct node *sucessor = min(n -> direita);//o próximo nó a ser inserido será o menor valor da subárvore direita
+    n -> valor = sucessor -> valor;//sucessor passa para a raiz
+    n -> direita = removeRaiz(sucessor);//o ponteiro da direita é a raiz modificada (caso ela tenha sido modificada) da subárvore direita
 
     return n;
 
 }
+
+//encontra o pai do nó
 struct node* buscaPai(struct node *raiz, struct node *n, struct node *pai){
-    if(raiz==NULL || (*raiz).valor==(*n).valor){
+    if(raiz == NULL || (*raiz).valor == (*n).valor){//se a árvore for vazia ou o valor tiver sido encontrado, retorna o pai
         return pai;
     }
-    pai=raiz;
-    if((*raiz).valor > (*n).valor){
-        return buscaPai((*raiz).esquerda,n,pai);
+
+    pai = raiz;//raiz é definido como pai (assim percorre-se as subárvores)
+
+    if((*raiz).valor > (*n).valor){//se o valor de n for menor que o da raiz, percorre subárvore esquerda
+        return buscaPai((*raiz).esquerda, n, pai);
     }
-    else{
-        return buscaPai((*raiz).direita,n,pai);
+
+    else{//se o valor de n for menor que o da raiz, percorre subárvore esquerda
+        return buscaPai((*raiz).direita, n, pai);
     }
 }
+
+//remove o nó da árvore
 struct node *removeNo(struct node *raiz, int valor){
-    struct node *n=busca(raiz,valor);
-    if(n){
-        struct node *gg=NULL;
-        struct node *pai=buscaPai(raiz,n,gg);
-        if(pai){
-            if((*pai).direita==n){
+    struct node *n = busca(raiz,valor);//encontra o endereço de n
+    if(n){//se n != NULL (se n está na árvore)
+        struct node *pai = buscaPai(raiz,n, NULL);//encontra o pai de n
+        if(pai){//se n tiver pai
+            if((*pai).direita == n){//se n for o filho da dureita
                 (*pai).direita=removeRaiz(n);
             }
             else{
@@ -135,41 +119,34 @@ void construir(int V[], int p, int valor){
 }
 
 double arvore_binaria(int instancia_num, FILE *pontarq) {
-    double tempo = 0;
-    clock_t begin = clock();
+    clock_t begin = clock(); //marca o horário de início
 
     // Define a árvore como uma estrutura vazia
     struct node* root = NULL;
 
-    int cont=0;
-    int cont2=0;
-    char line[256];
-    while (fgets(line, sizeof(line), pontarq)) {
-        char comando;
-        int num;
+    char line[16];//buffer do fgets
+
+    while (fgets(line, sizeof(line), pontarq)) {//enquanto tem coisa para ler
+        char comando; //guarda a letra do comando
+        int num; //guarda o número a ser removido/inserido
 
         // Lê o comando e o número da linha
         if (sscanf(line, "%c %d", &comando, &num) == 2) {
-            if (comando == 'I') {
-                root = inserir(root, num); // Atualiza o root com o retorno da inserção
-                cont++;
-            }
-            if (comando == 'R') {
+            if (comando == 'I') //caso de inserção
+                root = inserir(root, num);
+            if (comando == 'R') //caso de remoção
                 removeNo(root,num);
-                cont2++;
-            }
         }
     }
-    printf("\nContador1: %d Contador2: %d\n", cont, cont2);
     
-
-    
-    clock_t end = clock();
+    clock_t end = clock(); //marca o horário de término
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
     // dividindo a diferença por CLOCKS_PER_SEC para converter em segundos
-    tempo += (double)(end - begin) / CLOCKS_PER_SEC;
+    double tempo = (double)(end - begin) / CLOCKS_PER_SEC;
     return (tempo);
 }
+
+//-----------------------------------------------------------
 
 struct node* inserirb(struct node* root2,int V[],int E, int D){
     struct node* no=malloc(sizeof(struct node));
@@ -209,6 +186,7 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
     }
     
     inserirb(root2,V,0,sizeof(V));// Atualiza o root com o retorno da inserção
+    
     while (fgets(line, sizeof(line), pontarq)) {
         char comando;
         int num;
@@ -237,7 +215,9 @@ int main(int argc, char* argv[]) {
     ///////////////// Não deve ser modificado /////////////////
     ///////////////////////////////////////////////////////////
     int instancia_num = -1;
+
     FILE* pontarq = fopen(argv[1], "r");
+
     if (pontarq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
@@ -249,21 +229,18 @@ int main(int argc, char* argv[]) {
         exit(0);
     }
     
+    double tempo_n_balanceada = arvore_binaria(instancia_num, pontarq);
 
-    
-    double tempo_n_balanceada = arvore_binaria(instancia_num,pontarq);
+    pontarq = fopen(argv[1], "r");//corrompe sem isso
 
-    pontarq = fopen(argv[1], "r");
     if (pontarq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         exit(1);
     }
-    double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
 
-    
+    //double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
 
-    
-    printf("%f %f\n", tempo_n_balanceada, tempo_balanceada);
+    printf("%f\n", tempo_n_balanceada);
 
     return (1);
 }
