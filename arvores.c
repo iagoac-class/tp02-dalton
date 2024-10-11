@@ -106,7 +106,7 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     return (tempo);
 }
 
-//-----------------------------------------------------------
+//--------------------------------------------------------------------
 
 no* inserirb(no* raiz2,int V[],int E, int D){
     no* no=malloc(sizeof(no));
