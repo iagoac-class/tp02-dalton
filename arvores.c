@@ -114,7 +114,7 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
     return (tempo);
 }
 
-//-----------------------------------------------------------
+//--------------------------------------------------------------------
 
 int altura(no* n){
     if(n == NULL)
