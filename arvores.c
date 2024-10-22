@@ -25,7 +25,7 @@ no* inserir(no* n, int val){
     else
         n -> esquerda = inserir(n -> esquerda, val);
 
-    // Return the (unchanged) node pointer
+    // Return the (unchanged) n pointer
     return n;
 }
 
@@ -76,13 +76,21 @@ void emordem(no* n) {
     }
 }
 
+void posordem(no* n) {
+    if(n != NULL) {
+        posordem(n -> esquerda);
+        posordem(n -> direita);
+        printf("%d ", n -> valor);
+    }
+}
+
 double arvore_binaria(int instancia_num, FILE *pontarq) {
     clock_t begin = clock(); //marca o horário de início
 
-    // Define a árvore como uma estrutura vazia
+    //define a árvore como uma estrutura vazia
     no* raiz = NULL;
 
-    char line[16];//buffer do fgets
+    char line[16]; //buffer do fgets
 
     while (fgets(line, sizeof(line), pontarq)) {//enquanto tem coisa para ler
         char comando; //guarda a letra do comando
@@ -94,8 +102,8 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
                 raiz = inserir(raiz, num);
             if (comando == 'R') //caso de remoção
                 raiz = remove_no(raiz,num);
-            //emordem(raiz);
-            //printf("\n");
+            // emordem(raiz);
+            // printf("\n");
         }
     }
     
@@ -108,58 +116,128 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
 
 //-----------------------------------------------------------
 
-no* inserirb(no* raiz2,int V[],int E, int D){
-    no* no=malloc(sizeof(no));
-    if(E>D){
-        return NULL;
-    }
-    int mid=(E+D)/2;
-    (*no).valor=V[mid];
-    (*no).esquerda=inserirb(raiz2,V,E,mid-1);
-    (*no).direita=inserirb(raiz2,V,mid+1,D);
-    raiz2=no;
-    return no;
+int altura(no* n){
+    if(n == NULL)
+        return 0;
+    return n -> altura;
 }
+
+int maior(int x, int y){
+    return (x > y)? x : y;
+}
+
+no* novo_no_bin(int val){
+    no* tmp = malloc(sizeof(no));
+    tmp -> valor = val;
+    tmp -> esquerda = tmp -> direita = NULL;
+    tmp -> altura = 1;
+    return tmp;
+}
+
+no* rot_direita(no* raiz){
+    no* x = raiz -> esquerda;
+    no* y = x -> direita;
+
+    //rotação
+    x -> direita = raiz;
+    raiz -> esquerda = y;
+
+    //atualizar alturas
+    raiz -> altura = maior(altura(raiz->esquerda), altura(raiz->direita)) + 1;
+    x -> altura = maior(altura(x->esquerda), altura(x->direita)) + 1;
+
+    return x; //nova raiz 
+}
+
+no* rot_esquerda(no* raiz){
+    no* y = raiz -> direita;
+    no* x = y -> esquerda;
+
+    //rotação
+    y -> esquerda = raiz;
+    raiz -> direita = x;
+
+    //atualizar alturas
+    raiz -> altura = maior(altura(raiz->esquerda), altura(raiz->direita)) + 1;
+    y -> altura = maior(altura(y->esquerda), altura(y->direita)) + 1;
+
+    return x; //nova raiz 
+}
+
+int fb(no* n){
+    if(n == NULL)
+        return 0;
+    return altura(n->esquerda) - altura(n->direita);
+}
+
+no* insere_bin(no* n, int val)
+{
+    //inserção normal
+    if (n == NULL)
+        return(novo_no_bin(val));
+
+    if (val < n -> valor)
+        n->esquerda  = insere_bin(n->esquerda, val);
+    else if (val > n->valor)
+        n->direita = insere_bin(n->direita, val);
+    else // valores iguais não são permitidos
+        return n;
+
+    //atualizar a altura de n
+    n->altura = 1 + maior(altura(n->esquerda), altura(n->direita));
+
+    //verificar balanceamento de n
+    int bal = fb(n);
+
+    // RSD
+    if (bal > 1 && val < n->direita->valor)
+        return rot_direita(n);
+
+    // RSE
+    if (bal < -1 && val > n->esquerda->valor)
+        return rot_esquerda(n);
+
+    // RDD
+    if (bal > 1 && val > n->esquerda->valor){
+        n->esquerda =  rot_esquerda(n->esquerda);
+        return rot_direita(n);
+    }
+
+    // RDE
+    if (bal < -1 && val < n->direita->valor){
+        n->direita = rot_direita(n->direita);
+        return rot_esquerda(n);
+    }
+
+    //retorna o ponteiro n
+    return n;
+}
+
+
 
 double arvore_balanceada(int instancia_num, FILE *pontarq) {
     double tempo = 0;
     clock_t begin = clock();
 
     no* raiz2 = NULL;
+    char line[16]; //buffer do fgets
 
-    int cont=0;
-    int cont2=0;
-    int V[20000];
-    char line[256];
+    while (fgets(line, sizeof(line), pontarq)) {//enquanto tem coisa para ler
+        char comando; //guarda a letra do comando
+        int num; //guarda o número a ser removido/inserido
 
-    while (fgets(line, sizeof(line), pontarq)) {
-        char comando;
-        int num;
-
-        // Lê o comando e o número da linha
+        //lê o comando e o número da linha
         if (sscanf(line, "%c %d", &comando, &num) == 2) {
-            if (comando == 'I') {
-                // construir(V,cont,num);
-                cont++;
-            }
+            if (comando == 'I') //caso de inserção
+                raiz2 = insere_bin(raiz2, num);
+            if (comando == 'R') //caso de remoção
+                // raiz2 = remove_bin(raiz2, num);
+            emordem(raiz2);
+            printf("\n");
+            posordem(raiz2);
+            printf("\n");
         }
     }
-    
-    inserirb(raiz2,V,0,sizeof(V));// Atualiza o raiz com o retorno da inserção
-    
-    while (fgets(line, sizeof(line), pontarq)) {
-        char comando;
-        int num;
-
-        // Lê o comando e o número da linha
-        if (sscanf(line, "%c %d", &comando, &num) == 2) {
-            if (comando == 'R') {
-                // removeNo(raiz2,num);
-                cont2++;
-            }
-        }
-    }
-    printf("\nContador1: %d Contador2: %d\n", cont, cont2);
 
     clock_t end = clock();
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
@@ -198,9 +276,9 @@ int main(int argc, char* argv[]) {
         return(1);
     }
 
-    //double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
+    double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
 
-    printf("%f\n", tempo_n_balanceada);
+    printf("%f, %f\n", tempo_n_balanceada, tempo_balanceada);
 
     return (1);
 }
