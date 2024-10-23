@@ -4,6 +4,7 @@
 
 // Implementar qualquer struct que for necessária aqui
 
+//struct das árvores Binária e AVL
 typedef struct no_ {
     int valor;
     struct no_ *esquerda;

@@ -4,28 +4,6 @@
 #include <time.h>
 #include "arvores.h"
 
-
-//impressão em-ordem, usada para testes
-void emordem(no* n) {
-    if (n != NULL) {
-        emordem(n -> esquerda);
-        printf("%d ", n -> valor);
-        emordem(n -> direita);
-    }
-}
-
-//imprime a árvore em pré-ordem
-void preordem(no *raiz){
-
-    if(raiz != NULL){ //se a árvore não estiver vazia
-        printf("%d ", raiz->valor); //imprime o valor do nó
-        preordem(raiz->esquerda); //percorre a subárvore esquerda
-        preordem(raiz->direita); //percorre a subárvore direita
-    }
-}
-
-//-------------------------------------------------------------------------------------
-
 double arvore_binaria(FILE *pontarq) {
     double tempo = 0; //variável que guarda o tempo
     clock_t begin = clock(); //registra o tempo de início de execução
@@ -75,8 +53,6 @@ double arvore_balanceada(FILE *pontarq) {
                 raiz = insere_bin(raiz, num);
             if (comando == 'R') //caso de remoção
                 raiz = remove_no_bin(raiz, num);
-            //emordem(raiz);
-            //printf("\n");
         }
     }
     //preordem(raiz);
@@ -99,29 +75,37 @@ int main(int argc, char* argv[]){
     ///////////////////////////////////////////////////////////
     int instancia_num = -1;
 
-    FILE* pontarq = fopen(argv[1], "r");
-    if (pontarq == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return(1);
-    }
-
+    //Leitor de instâncias
     instancia_num = atoi(argv[1]);
     if (instancia_num <= 0 || instancia_num > 10) {
         printf("Para executar o código, digite ./arvores val\nonde val é um número entre 1 e 10 que simboliza a instância utilizada\n");
         return(0);
     }
+
+    char caminho[256];// Buffer para armazenar o caminho completo do arquivo
+
+    // Constrói o caminho para o arquivo dentro da pasta "instancias"
+    snprintf(caminho, sizeof(caminho), "instancias/%s", argv[1]);
+
+    //Abertura do arquivo para leitura
+    FILE* pontarq = fopen(caminho, "r");
+    if (pontarq == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return(1);
+    }
     
     double tempo_n_balanceada = arvore_binaria(pontarq);
-    fclose(pontarq);
+    fclose(pontarq);//Fecha o arquivo de texto
 
-    pontarq = fopen(argv[1], "r");//corrompe sem isso
+    //Segunda abertura do arquivo para leitura
+    pontarq = fopen(caminho, "r");//corrompe sem isso
     if (pontarq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return(1);
     }
 
     double tempo_balanceada = arvore_balanceada(pontarq);
-    fclose(pontarq);
+    fclose(pontarq);//Fecha o arquivo de texto
 
     printf("Tempo árvore não balanceada: %f\n", tempo_n_balanceada);
     printf("Tempo árvore balanceada: %f\n", tempo_balanceada);
