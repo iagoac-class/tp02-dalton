@@ -126,10 +126,12 @@ int maior(int x, int y){
     return (x > y)? x : y;
 }
 
+
 no* novo_no_bin(int val){
     no* tmp = malloc(sizeof(no));
     tmp -> valor = val;
-    tmp -> esquerda = tmp -> direita = NULL;
+    tmp -> esquerda = NULL;
+    tmp -> direita = NULL;
     tmp -> altura = 1;
     return tmp;
 }
@@ -161,7 +163,7 @@ no* rot_esquerda(no* raiz){
     raiz -> altura = maior(altura(raiz->esquerda), altura(raiz->direita)) + 1;
     y -> altura = maior(altura(y->esquerda), altura(y->direita)) + 1;
 
-    return x; //nova raiz 
+    return y; //nova raiz 
 }
 
 int fb(no* n){
@@ -170,50 +172,63 @@ int fb(no* n){
     return altura(n->esquerda) - altura(n->direita);
 }
 
-no* insere_bin(no* n, int val)
-{
-    //inserção normal
+// Função para inserir um valor na árvore
+no* insere_bin(no* n, int val) {
+    // Inserção normal
     if (n == NULL)
-        return(novo_no_bin(val));
+        return novo_no_bin(val);
 
-    if (val < n -> valor)
-        n->esquerda  = insere_bin(n->esquerda, val);
+    if (val < n->valor)
+        n->esquerda = insere_bin(n->esquerda, val);
     else if (val > n->valor)
         n->direita = insere_bin(n->direita, val);
-    else // valores iguais não são permitidos
+    else // Valores iguais não são permitidos
         return n;
 
-    //atualizar a altura de n
+    // Atualizar a altura de n
     n->altura = 1 + maior(altura(n->esquerda), altura(n->direita));
 
-    //verificar balanceamento de n
+    // Verificar balanceamento de n
     int bal = fb(n);
 
-    // RSD
-    if (bal > 1 && val < n->direita->valor)
-        return rot_direita(n);
-
-    // RSE
-    if (bal < -1 && val > n->esquerda->valor)
-        return rot_esquerda(n);
-
-    // RDD
-    if (bal > 1 && val > n->esquerda->valor){
-        n->esquerda =  rot_esquerda(n->esquerda);
+    // RSD (Right Single Rotation)
+    if (bal > 1 && val < n->esquerda->valor) {
         return rot_direita(n);
     }
 
-    // RDE
-    if (bal < -1 && val < n->direita->valor){
+    // RSE (Left Single Rotation)
+    if (bal < -1 && val > n->direita->valor) {
+        return rot_esquerda(n);
+    }
+
+    // RDD (Right Double Rotation)
+    if (bal > 1 && val > n->esquerda->valor) {
+        n->esquerda = rot_esquerda(n->esquerda);
+        return rot_direita(n);
+    }
+
+    // RDE (Left Double Rotation)
+    if (bal < -1 && val < n->direita->valor) {
         n->direita = rot_direita(n->direita);
         return rot_esquerda(n);
     }
 
-    //retorna o ponteiro n
+    // Retorna o ponteiro n
     return n;
 }
 
-
+// A utility function to print preorder traversal
+// of the tree.
+// The function also prints altura of every node
+void preOrder(no *root)
+{
+    if(root != NULL)
+    {
+        printf("%d ", root->valor);
+        preOrder(root->esquerda);
+        preOrder(root->direita);
+    }
+}
 
 double arvore_balanceada(int instancia_num, FILE *pontarq) {
     double tempo = 0;
@@ -230,14 +245,11 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
         if (sscanf(line, "%c %d", &comando, &num) == 2) {
             if (comando == 'I') //caso de inserção
                 raiz2 = insere_bin(raiz2, num);
-            if (comando == 'R') //caso de remoção
+            //if (comando == 'R') //caso de remoção
                 // raiz2 = remove_bin(raiz2, num);
-            emordem(raiz2);
-            printf("\n");
-            posordem(raiz2);
-            printf("\n");
         }
     }
+    preOrder(raiz2);
 
     clock_t end = clock();
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
@@ -245,6 +257,8 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
     tempo += (double)(end - begin) / CLOCKS_PER_SEC;
     return (tempo);
 }
+
+
 
 
 int main(int argc, char* argv[]) {
