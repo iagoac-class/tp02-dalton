@@ -4,70 +4,71 @@
 #include <time.h>       
 #include "arvores.h"
 
-// Cria um novo nó, retornando seu endereço
+//cria um novo nó, retornando seu endereço
 no* novo_no(int val) {
-    no* tmp = malloc(sizeof(no));
-    tmp -> valor = val;
-    tmp -> esquerda = tmp -> direita = NULL;
-    return tmp;
+    no* tmp = malloc(sizeof(no)); //um endereço na memória é reservado para o novo nó
+    tmp -> valor = val; //o valor é o valor passado
+    tmp -> esquerda = tmp -> direita = NULL; //ambos os ponteiros começam apontando para NULL (não apontam para nenhum nó)
+    return tmp; //retorna o endereço do nó criado
 }
  
-// Inserir novo nó com determinado valor na árvore binária
+//insere um valor na árvore, retorna a raiz
 no* inserir(no* n, int val){
-    if (n == NULL)
-        return novo_no(val);
+    if (n == NULL) //se a raiz for nula, este é o local para a inserçao, portanto retorne o ponteiro do nó criado com val
+        return novo_no(val); //este nó será apontado pela variável de raiz da função de árvore balanceada ou pelo seu nó pai
     
     if (n -> valor == val)
-        return n;
+        return n; //valores repetidos não são permitidos
     
-    if (n -> valor < val)
-        n -> direita = inserir(n -> direita, val);
-    else
-        n -> esquerda = inserir(n -> esquerda, val);
+    if (n -> valor < val) //se o valor do nó analisado for menor que val
+        n -> direita = inserir(n -> direita, val); //percorre a subárvore à direita
+    else //se o valor do nó analisado for maior que val
+        n -> esquerda = inserir(n -> esquerda, val); //percorre a subárvore à esquerda
 
-    // Return the (unchanged) n pointer
-    return n;
+    return n; //retorna a raiz
 }
 
+//encontra o sucessor
 no* encontra_prox(no* atual) {
-    atual = atual -> direita;
-    while (atual != NULL && atual -> esquerda != NULL)
-        atual = atual->esquerda;
-    return atual;
+    atual = atual -> direita; //entra na subárvore direita
+    while (atual != NULL && atual -> esquerda != NULL) //enquanto houverem nós à esquerda
+        atual = atual->esquerda; //anda para a esquerda
+    return atual; //retorna o menor valor da subárvore direita
 }
 
 no* remove_no(no* raiz, int val) {
   
-    if (raiz == NULL)
-        return raiz;
+    if (raiz == NULL) //se a árvore estiver vazia
+        return raiz; //retorna NULL
 
-    if (raiz -> valor > val)
-        raiz -> esquerda = remove_no(raiz -> esquerda, val);
-    else if (raiz -> valor < val)
-        raiz -> direita = remove_no(raiz -> direita, val);
-    else {
+    if (raiz -> valor > val) //se o valor do nó analisado for maior do que val
+        raiz -> esquerda = remove_no(raiz -> esquerda, val); //percorre a subárvore esquerda
+    else if (raiz -> valor < val) //se o valor do nó analisado for menor do que val
+        raiz -> direita = remove_no(raiz -> direita, val); //percorre a subárvore esquerda
+    else { //se o valor do nó analisado for igual a val, este será o nó removido
 
-        if (raiz -> esquerda == NULL) {
-            no* tmp = raiz->direita;
-            free(raiz);
-            return tmp;
+        //raiz será removida
+        if (raiz -> esquerda == NULL){ //se raiz não tem filho esquerdo
+            no* tmp = raiz->direita; //guarda o filho direito temporariamente
+            free(raiz); //remove raiz
+            return tmp; //retorna o filho direito
         }
 
-        // When raiz has onl y  esquerda child
-        if (raiz->direita == NULL) {
-            no* tmp = raiz -> esquerda;
-            free(raiz);
-            return tmp;
+        if (raiz->direita == NULL){ //se raiz não tem filho direito
+            no* tmp = raiz -> esquerda; //guarda o filho esquerdo temporariamente
+            free(raiz); //remove raiz
+            return tmp; //retorna o filho esquerdo
         }
 
-        // When both children are present
-        no* prox = encontra_prox(raiz);
-        raiz -> valor = prox -> valor;
-        raiz -> direita = remove_no(raiz -> direita, prox -> valor);
+        //se a raiz possui ambos os filhos
+        no* prox = encontra_prox(raiz); //encontra o próximo valor
+        raiz -> valor = prox -> valor; //valor de próximo salta para a raiz
+        raiz -> direita = remove_no(raiz -> direita, prox -> valor); //nó com o valor de prox é removido
     }
     return raiz;
 }
 
+//impressão em-ordem, usada para testes
 void emordem(no* n) {
     if (n != NULL) {
         emordem(n -> esquerda);
@@ -76,6 +77,7 @@ void emordem(no* n) {
     }
 }
 
+//impressão pos-ordem, usada para testes
 void posordem(no* n) {
     if(n != NULL) {
         posordem(n -> esquerda);
@@ -227,18 +229,21 @@ no* insere_bin(no* n, int val) {
 
 //REMOÇÃO
 
+//usada para encontrar o nó mínimo da subárvore direita durante a remoção
 no* no_minimo(no* n){
 
-    no* atual = n;
+    no* atual = n; //define o nó atual
 
-    while (atual->esquerda != NULL)
-        atual = atual->esquerda;
+    while (atual->esquerda != NULL) //enquanto houver nós à esquerda para percorrer
+        atual = atual->esquerda; //anda para a esquerda
 
-    return atual;
+    return atual; //retorna o nó mais à esquerda (o menor)
 }
 
+//remove o nó e balancea a árvore caso necessário, retorna a raiz
 no* remove_no_bin(no* raiz, int val){
-    //DELEÇÃO
+
+    //REMOÇÃO
     if (raiz == NULL) //se a raiz for nula, este é o final da árvore/subárvore
         return raiz; //retorna nulo
     
@@ -256,7 +261,7 @@ no* remove_no_bin(no* raiz, int val){
 
             //sem filhos
             if (tmp == NULL){
-                tmp = raiz;
+                tmp = raiz; //o nó é simplesmente removido
                 raiz = NULL;
             }
             else //apenas um filho
@@ -266,11 +271,11 @@ no* remove_no_bin(no* raiz, int val){
 
         }else{ //dois filhos
             
-            no* tmp = no_minimo(raiz->direita);
+            no* tmp = no_minimo(raiz->direita); //este é o valor que substituirá o nó removido
 
-            raiz->valor = tmp->valor;
+            raiz->valor = tmp->valor; //valor de tmp passa para a raiz
 
-            raiz->direita = remove_no_bin(raiz->direita, tmp->valor);
+            raiz->direita = remove_no_bin(raiz->direita, tmp->valor); //nó com tmp é removido
         }
     }
 
@@ -284,21 +289,21 @@ no* remove_no_bin(no* raiz, int val){
     int bal = fb(raiz);
 
 
-    // esquerda esquerda Case
+    //caso esquerda-esquerda (RSD)
     if (bal > 1 && fb(raiz->esquerda) >= 0)
         return rot_direita(raiz);
 
-    // esquerda direita Case
+    //caso esquerda-direita (RDD)
     if (bal > 1 && fb(raiz->esquerda) < 0){
         raiz->esquerda =  rot_esquerda(raiz->esquerda);
         return rot_direita(raiz);
     }
 
-    // direita direita Case
+    //caso direita-direta (RSE)
     if (bal < -1 && fb(raiz->direita) <= 0)
         return rot_esquerda(raiz);
 
-    // direita esquerda Case
+    //caso direita-esquerda (RDE)
     if (bal < -1 && fb(raiz->direita) > 0){
         raiz->direita = rot_direita(raiz->direita);
         return rot_esquerda(raiz);
@@ -340,10 +345,10 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
             // printf("\n");
         }
     }
-    preordem(raiz);
-    printf("\n");
+    // preordem(raiz);
+    // printf("\n");
 
-    clock_t end = clock();
+    clock_t end = clock(); //registra o tempo de término da execução
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
     // dividindo a diferença por CLOCKS_PER_SEC para converter em segundos
     tempo += (double)(end - begin) / CLOCKS_PER_SEC;
