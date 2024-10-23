@@ -1,5 +1,6 @@
 #ifndef _H_ARVORES
 #define _H_ARVORES
+#include <stdio.h>
 
 // Implementar qualquer struct que for necessária aqui
 
