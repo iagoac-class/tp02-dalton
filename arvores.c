@@ -92,7 +92,7 @@ double arvore_balanceada(FILE *pontarq) {
 
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
     ///////////////////////////////////////////////////////////
     /////////////////// Leitor de instâncias //////////////////
     ///////////////// Não deve ser modificado /////////////////
