@@ -26,13 +26,12 @@ void preordem(no *raiz){
 
 //-------------------------------------------------------------------------------------
 
-double arvore_binaria(int instancia_num, FILE *pontarq) {
+double arvore_binaria(FILE *pontarq) {
     double tempo = 0; //variável que guarda o tempo
     clock_t begin = clock(); //registra o tempo de início de execução
 
     //define a árvore como uma estrutura vazia
     no* raiz = NULL;
-
     char line[16]; //buffer do fgets
 
     while (fgets(line, sizeof(line), pontarq)) {//enquanto tem coisa para ler
@@ -45,8 +44,8 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
                 raiz = inserir(raiz, num);
             if (comando == 'R') //caso de remoção
                 raiz = remove_no(raiz,num);
-            // emordem(raiz);
-            // printf("\n");
+            //emordem(raiz);
+            //printf("\n");
         }
     }
     
@@ -60,7 +59,7 @@ double arvore_binaria(int instancia_num, FILE *pontarq) {
 //--------------------------------------------------------------------------------------
 
 //retorna o tempo de execução das inserções e remoções na árvore balanceada
-double arvore_balanceada(int instancia_num, FILE *pontarq) {
+double arvore_balanceada(FILE *pontarq) {
     double tempo = 0; //variável que guarda o tempo
     clock_t begin = clock(); //registra o tempo de início de execução
 
@@ -76,12 +75,12 @@ double arvore_balanceada(int instancia_num, FILE *pontarq) {
                 raiz = insere_bin(raiz, num);
             if (comando == 'R') //caso de remoção
                 raiz = remove_no_bin(raiz, num);
-            // emordem(raiz);
-            // printf("\n");
+            //emordem(raiz);
+            //printf("\n");
         }
     }
-    // preordem(raiz);
-    // printf("\n");
+    //preordem(raiz);
+    //printf("\n");
 
     clock_t end = clock(); //registra o tempo de término da execução
     // calcula o tempo decorrido encontrando a diferença (end - begin) e
@@ -101,7 +100,6 @@ int main(int argc, char* argv[]) {
     int instancia_num = -1;
 
     FILE* pontarq = fopen(argv[1], "r");
-
     if (pontarq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return(1);
@@ -113,16 +111,17 @@ int main(int argc, char* argv[]) {
         return(0);
     }
     
-    double tempo_n_balanceada = arvore_binaria(instancia_num, pontarq);
+    double tempo_n_balanceada = arvore_binaria(pontarq);
+    fclose(pontarq);
 
     pontarq = fopen(argv[1], "r");//corrompe sem isso
-
     if (pontarq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return(1);
     }
 
-    double tempo_balanceada = arvore_balanceada(instancia_num,pontarq);
+    double tempo_balanceada = arvore_balanceada(pontarq);
+    fclose(pontarq);
 
     printf("Tempo árvore não balanceada: %f\n", tempo_n_balanceada);
     printf("Tempo árvore balanceada: %f\n", tempo_balanceada);

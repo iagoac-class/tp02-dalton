@@ -29,7 +29,7 @@ no* no_minimo(no* n);
 no* remove_no_bin(no* raiz, int val);
 void preordem(no *raiz); //para testes
 
-double arvore_binaria(int instancia_num, FILE *pontarq);
-double arvore_balanceada(int instancia_num, FILE *pontarq);
+double arvore_binaria(FILE *pontarq);
+double arvore_balanceada(FILE *pontarq);
 
 #endif // _H_ARVORES
