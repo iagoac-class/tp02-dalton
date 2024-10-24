@@ -107,8 +107,8 @@ int main(int argc, char* argv[]){
     double tempo_balanceada = arvore_balanceada(pontarq);
     fclose(pontarq);//Fecha o arquivo de texto
 
-    printf("Tempo árvore não balanceada: %f\n", tempo_n_balanceada);
-    printf("Tempo árvore balanceada: %f\n", tempo_balanceada);
+    printf("%f\n", tempo_n_balanceada);
+    printf("%f\n", tempo_balanceada);
 
     return (1);
 }
